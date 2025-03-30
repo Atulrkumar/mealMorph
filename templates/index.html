@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Culinary Vision | Advanced Recipe Generator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.ico') }}">
+    <!-- Lottie Animation -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: var(--primary-black);">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span style="font-weight: 300; letter-spacing: 2px; text-transform: uppercase;">Culinary Vision</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#team">Team</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg" style="background-image: url('https://images.unsplash.com/photo-1543353071-087092ec393a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 hero-content">
+                    <h1 class="hero-title">Culinary Vision</h1>
+                    <p class="hero-subtitle">Transform your ingredients into extraordinary recipes with AI precision.</p>
+                    <p class="mb-4">Powered by {{ implementation }} and Google Gemini</p>
+                    <a href="#upload-section" class="btn btn-primary">Generate Recipe</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        <!-- Centered Upload Section -->
+        <div class="row justify-content-center" id="upload-section">
+            <div class="col-lg-8 mb-5">
+                <div class="card shadow-sm">
+                    <div class="card-header text-center">
+                        <h5 class="mb-0">Upload Image</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="upload-area" class="upload-area">
+                            <i class="fas fa-cloud-upload-alt mb-3" style="font-size: 3rem; color: var(--luxury-blue);"></i>
+                            <p class="mb-2">Drag & drop an image or click to select</p>
+                            <input type="file" id="file-input" style="display: none" accept="image/jpeg, image/png, image/jpg">
+                            <button id="select-button" class="btn btn-primary mt-3">Select Image</button>
+                        </div>
+                        
+                        {% if recipe_available %}
+                        <div class="mt-4 border-top pt-4">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="generate-recipe-check" checked>
+                                <label class="form-check-label" for="generate-recipe-check">
+                                    Generate recipe from detected food items
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="recipe-type" class="form-label">Recipe Type (optional)</label>
+                                <select class="form-select" id="recipe-type">
+                                    <option value="">Any recipe type</option>
+                                    <option value="breakfast">Breakfast</option>
+                                    <option value="lunch">Lunch</option>
+                                    <option value="dinner">Dinner</option>
+                                    <option value="snack">Snack</option>
+                                    <option value="dessert">Dessert</option>
+                                    <option value="healthy">Healthy</option>
+                                    <option value="vegan">Vegan</option>
+                                    <option value="quick">Quick & Easy</option>
+                                </select>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning mt-3">
+                            <strong>Note:</strong> Recipe generation is not available. 
+                            {% if not gemini_configured %}
+                            Please add your Gemini API key to enable this feature.
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Enhanced Loading with cooking animation -->
+                        <div id="loading" class="text-center my-5">
+                            <div class="cooking-animation-container">
+                                <div class="cooking-animation mb-4">
+                                    <lottie-player 
+                                        src="https://lottie.host/7a395e66-e8dd-419f-b5f0-8fd24c0569d4/xtSscdTHBq.json" 
+                                        background="transparent" 
+                                        speed="1" 
+                                        style="width: 180px; height: 180px; margin: 0 auto;" 
+                                        loop 
+                                        autoplay>
+                                    </lottie-player>
+                                </div>
+                                <div class="recipe-creation-text">
+                                    <h4 class="mb-4 recipe-generating-title">Creating Your Recipe</h4>
+                                    <div class="recipe-steps">
+                                        <p class="recipe-step step-active" id="step1">Analyzing ingredients <span class="dot-animation"><span>.</span><span>.</span><span>.</span></span></p>
+                                        <p class="recipe-step" id="step2">Crafting recipe combinations <span class="dot-animation"><span>.</span><span>.</span><span>.</span></span></p>
+                                        <p class="recipe-step" id="step3">Finalizing your culinary creation <span class="dot-animation"><span>.</span><span>.</span><span>.</span></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Image Preview Section -->
+            <div class="col-lg-10 mb-4">
+                <div id="preview-container" style="display: none;">
+                    <div class="card shadow-sm">
+                        <div class="card-header text-center">
+                            <h5 class="mb-0">Image Preview</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <img id="preview-image" src="#" alt="Preview" class="img-fluid">
+                            <!-- Bounding boxes will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        <div id="results-container" class="row justify-content-center mt-5">
+            <div class="col-lg-10">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Detection Results</h5>
+                        <button id="copy-btn" class="btn btn-sm btn-light" onclick="copyJsonToClipboard()">Copy JSON</button>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-selected="true">Summary</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="json-tab" data-bs-toggle="tab" data-bs-target="#json" type="button" role="tab" aria-selected="false">JSON Data</button>
+                            </li>
+                            {% if recipe_available %}
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="recipe-tab" data-bs-toggle="tab" data-bs-target="#recipe" type="button" role="tab" aria-selected="false">Recipe</button>
+                            </li>
+                            {% endif %}
+                        </ul>
+                        <div class="tab-content" id="resultTabsContent">
+                            <div class="tab-pane fade show active" id="summary" role="tabpanel">
+                                <div id="detection-summary">
+                                    <div class="alert alert-primary">
+                                        No objects detected yet. Upload an image to get started.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="json" role="tabpanel">
+                                <pre id="json-output" class="json-output">No data yet.</pre>
+                            </div>
+                            {% if recipe_available %}
+                            <div class="tab-pane fade" id="recipe" role="tabpanel">
+                                <div id="recipe-content">
+                                    <div class="alert alert-primary">
+                                        No recipe generated yet. Upload an image with food items to get a recipe.
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features section -->
+        <div class="row mt-5" id="features">
+            <div class="col-12 text-center mb-4">
+                <h2 style="font-weight: 300; text-transform: uppercase; letter-spacing: 2px;">Advanced Features</h2>
+                <p class="text-muted">Experience the power of AI-driven recipe generation</p>
+            </div>
+            
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-box">
+                    <i class="fas fa-camera feature-icon"></i>
+                    <h4>Object Detection</h4>
+                    <p>State-of-the-art object detection identifies ingredients in your images with precision and accuracy.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-box">
+                    <i class="fas fa-utensils feature-icon"></i>
+                    <h4>Recipe Generation</h4>
+                    <p>AI-powered recipe creation turns your detected ingredients into perfectly crafted culinary creations.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-box">
+                    <i class="fas fa-sliders feature-icon"></i>
+                    <h4>Customization</h4>
+                    <p>Tailor your recipes to specific meal types or dietary preferences with simple customization.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team section -->
+        <div class="row mt-5 pt-4" id="team">
+            <div class="col-12 text-center mb-5">
+                <h2 style="font-weight: 300; text-transform: uppercase; letter-spacing: 2px;" data-aos="fade-up">Our Team</h2>
+                <p class="text-muted" data-aos="fade-up" data-aos-delay="100">The brilliant minds behind Culinary Vision</p>
+            </div>
+            
+            <div class="col-md-4 col-lg-2 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="team-member">
+                    <div class="team-avatar">
+                        <div class="avatar-circle">
+                            <span class="initials">AK</span>
+                        </div>
+                    </div>
+                    <h5 class="team-name">Atul Kumar</h5>
+                    <p class="team-role">Lead Developer</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 col-lg-2 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="team-member">
+                    <div class="team-avatar">
+                        <div class="avatar-circle">
+                            <span class="initials">NN</span>
+                        </div>
+                    </div>
+                    <h5 class="team-name">Neha Nayak</h5>
+                    <p class="team-role">AI Specialist</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 col-lg-2 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="team-member">
+                    <div class="team-avatar">
+                        <div class="avatar-circle">
+                            <span class="initials">C</span>
+                        </div>
+                    </div>
+                    <h5 class="team-name">Chaitanya</h5>
+                    <p class="team-role">Backend Engineer</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 col-lg-2 mb-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="team-member">
+                    <div class="team-avatar">
+                        <div class="avatar-circle">
+                            <span class="initials">A</span>
+                        </div>
+                    </div>
+                    <h5 class="team-name">Alex</h5>
+                    <p class="team-role">UI/UX Designer</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 col-lg-2 mb-4" data-aos="fade-up" data-aos-delay="500">
+                <div class="team-member">
+                    <div class="team-avatar">
+                        <div class="avatar-circle">
+                            <span class="initials">M</span>
+                        </div>
+                    </div>
+                    <h5 class="team-name">Mohak</h5>
+                    <p class="team-role">Data Scientist</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 col-lg-2 mb-4" data-aos="fade-up" data-aos-delay="600">
+                <div class="team-member">
+                    <div class="team-avatar">
+                        <div class="avatar-circle">
+                            <span class="initials">A</span>
+                        </div>
+                    </div>
+                    <h5 class="team-name">Abhinav</h5>
+                    <p class="team-role">Frontend Developer</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- About section -->
+        <div class="row mt-5" id="about">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">About This Tool</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Culinary Vision is an advanced web application that uses state-of-the-art AI technology to transform your ingredients into exceptional recipes:</p>
+                        <ul>
+                            <li>Uses pretrained Faster R-CNN model to detect ingredients in your images</li>
+                            <li>Analyzes detected food items with precision and accuracy</li>
+                            <li>Generates creative, chef-quality recipes tailored to your ingredients</li>
+                            {% if recipe_available %}
+                            <li>Leverages Google's Gemini AI for intelligent recipe formulation</li>
+                            {% endif %}
+                            <li>Provides detailed cooking instructions and nutritional guidance</li>
+                        </ul>
+                        <p class="mt-4 mb-0">Experience the future of culinary creation with Culinary Vision.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5 style="font-weight: 300; letter-spacing: 2px; text-transform: uppercase;">Culinary Vision</h5>
+                    <p class="small">Advanced Recipe Generation</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <p class="mb-0">Powered by {{ implementation }} {% if recipe_available %}and Google Gemini{% endif %}</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="small">&copy; 2025 Culinary Vision. All rights reserved.</p>
+                    <p class="small">Created by Atul Kumar, Neha Nayak, Chaitanya, Alex, Mohak, Abhinav</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html> 

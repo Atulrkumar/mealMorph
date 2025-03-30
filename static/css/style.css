@@ -1,0 +1,537 @@
+/* Mercedes-Benz Inspired Design for Recipe Generator */
+
+:root {
+    --primary-black: #000000;
+    --secondary-silver: #f0f0f0;
+    --accent-silver: #cccccc;
+    --luxury-blue: #133a6b;
+    --luxury-blue-light: #1c4f92;
+    --text-light: #f0f0f0;
+    --text-dark: #333333;
+    --subtle-gray: #e9e9e9;
+    --success-green: #00a651;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    color: var(--text-dark);
+    background-color: #fff;
+    line-height: 1.6;
+}
+
+/* Upload area styling */
+.upload-area {
+    border: 2px dashed var(--accent-silver);
+    border-radius: 0;
+    padding: 60px 20px;
+    text-align: center;
+    cursor: pointer;
+    background-color: var(--secondary-silver);
+    transition: all 0.3s ease;
+    margin: 0 auto;
+    max-width: 500px;
+}
+
+.upload-area:hover {
+    background-color: var(--subtle-gray);
+    border-color: var(--luxury-blue);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Preview container styling */
+#preview-container {
+    position: relative;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+#preview-image {
+    max-width: 100%;
+    max-height: 600px;
+    border-radius: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin: 0 auto;
+    display: block;
+}
+
+/* Bounding box and label styling */
+.bounding-box {
+    position: absolute;
+    border: 2px solid var(--luxury-blue);
+    background-color: rgba(19, 58, 107, 0.1);
+    pointer-events: none;
+}
+
+.detection-label {
+    position: absolute;
+    background-color: var(--primary-black);
+    color: var(--text-light);
+    padding: 6px 10px;
+    border-radius: 0;
+    font-size: 12px;
+    white-space: nowrap;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Loading indicator and recipe generation animation */
+#loading {
+    display: none;
+    margin: 30px auto;
+    max-width: 600px;
+}
+
+.cooking-animation-container {
+    background-color: var(--secondary-silver);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--luxury-blue);
+}
+
+.cooking-animation {
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(19, 58, 107, 0.2);
+    background-color: white;
+    padding: 10px;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.recipe-generating-title {
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--luxury-blue);
+    border-bottom: 1px solid var(--accent-silver);
+    padding-bottom: 15px;
+}
+
+.recipe-steps {
+    text-align: left;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.recipe-step {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent-silver);
+    background-color: rgba(255, 255, 255, 0.7);
+    transition: all 0.5s ease;
+    opacity: 0.5;
+    transform: translateX(20px);
+}
+
+.recipe-step.step-active {
+    border-left: 3px solid var(--luxury-blue);
+    background-color: white;
+    opacity: 1;
+    transform: translateX(0);
+    font-weight: 500;
+}
+
+.dot-animation span {
+    opacity: 0;
+    animation: dotTyping 1.5s infinite;
+    display: inline-block;
+}
+
+.dot-animation span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.dot-animation span:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.dot-animation span:nth-child(3) {
+    animation-delay: 1s;
+}
+
+@keyframes dotTyping {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Results container */
+#results-container {
+    display: none;
+    margin-top: 40px;
+}
+
+/* JSON output styling */
+pre.json-output {
+    background-color: var(--secondary-silver);
+    padding: 15px;
+    border-radius: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    border-left: 4px solid var(--luxury-blue);
+}
+
+/* Tab content styling */
+.tab-content {
+    padding: 20px;
+    border: 1px solid var(--accent-silver);
+    border-top: none;
+    border-radius: 0;
+}
+
+.nav-tabs .nav-link {
+    border-radius: 0;
+    padding: 12px 20px;
+    font-weight: 500;
+    color: var(--text-dark);
+    border: none;
+    border-bottom: 3px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--luxury-blue);
+    background-color: transparent;
+    border-bottom: 3px solid var(--luxury-blue);
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: transparent;
+    border-bottom: 3px solid var(--accent-silver);
+}
+
+/* Header styling */
+.app-header {
+    background-color: var(--primary-black);
+    color: var(--text-light);
+    padding: 2rem 0;
+    margin-bottom: 0;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: var(--luxury-blue);
+    border-color: var(--luxury-blue);
+    border-radius: 0;
+    padding: 10px 20px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--luxury-blue-light);
+    border-color: var(--luxury-blue-light);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(19, 58, 107, 0.2);
+}
+
+.btn-light {
+    background-color: var(--secondary-silver);
+    border-color: var(--secondary-silver);
+    color: var(--text-dark);
+    border-radius: 0;
+}
+
+.btn-light:hover {
+    background-color: var(--accent-silver);
+    border-color: var(--accent-silver);
+}
+
+/* Card styling */
+.card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background-color: var(--primary-black);
+    color: var(--text-light);
+    border-radius: 0;
+    padding: 16px 20px;
+}
+
+.bg-primary {
+    background-color: var(--primary-black) !important;
+}
+
+.bg-light {
+    background-color: var(--secondary-silver) !important;
+}
+
+/* Recipe styling */
+.recipe-card {
+    padding: 30px;
+    border-radius: 0;
+    background-color: white;
+    border-left: 4px solid var(--luxury-blue);
+}
+
+.recipe-header {
+    border-bottom: 1px solid var(--accent-silver);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.recipe-title {
+    color: var(--luxury-blue);
+    font-size: 28px;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ingredient-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.ingredient-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--subtle-gray);
+}
+
+.ingredient-list li:last-child {
+    border-bottom: none;
+}
+
+.instruction-list li {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    padding: 10px 0;
+}
+
+.serving-section, .nutrition-section {
+    background-color: var(--secondary-silver);
+    padding: 20px;
+    border-radius: 0;
+    border-left: 4px solid var(--luxury-blue);
+    margin-top: 20px;
+}
+
+.nutrition-section {
+    border-left-color: var(--success-green);
+}
+
+/* Team members styling */
+.team-member {
+    text-align: center;
+    padding: 20px 10px;
+    background-color: white;
+    border-bottom: 3px solid transparent;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.team-member:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    border-bottom: 3px solid var(--luxury-blue);
+}
+
+.team-avatar {
+    margin-bottom: 15px;
+}
+
+.avatar-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--luxury-blue), var(--luxury-blue-light));
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(19, 58, 107, 0.3);
+}
+
+.initials {
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.team-name {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 10px 0 5px;
+    color: var(--luxury-blue);
+}
+
+.team-role {
+    font-size: 14px;
+    color: #888;
+    margin: 0;
+}
+
+/* Footer styling */
+footer {
+    background-color: var(--primary-black);
+    color: var(--text-light);
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+footer p {
+    font-size: 14px;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+/* Form controls */
+.form-control, .form-select {
+    border-radius: 0;
+    padding: 10px 15px;
+    border: 1px solid var(--accent-silver);
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: none;
+    border-color: var(--luxury-blue);
+}
+
+/* Feature section */
+.feature-box {
+    text-align: center;
+    padding: 30px 20px;
+    transition: all 0.3s ease;
+    background-color: white;
+    border-bottom: 3px solid transparent;
+    height: 100%;
+}
+
+.feature-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    border-bottom: 3px solid var(--luxury-blue);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: var(--luxury-blue);
+}
+
+/* Hero section */
+.hero-section {
+    background-color: var(--primary-black);
+    padding: 80px 0;
+    color: var(--text-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-bg {
+    background-size: cover;
+    background-position: center;
+    opacity: 0.3;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    font-weight: 300;
+    opacity: 0.8;
+    margin-bottom: 30px;
+}
+
+/* Animation and transitions */
+.fade-in {
+    animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Recipe container animation */
+#recipe-content.active {
+    animation: recipeReveal 1s ease forwards;
+}
+
+@keyframes recipeReveal {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Loading text animation */
+#loading p {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .upload-area {
+        padding: 40px 15px;
+    }
+    
+    .team-member {
+        margin-bottom: 20px;
+    }
+    
+    .cooking-animation-container {
+        padding: 15px;
+    }
+    
+    .recipe-steps {
+        max-width: 100%;
+    }
+} 
